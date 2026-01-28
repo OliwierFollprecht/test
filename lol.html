@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Walentynki</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #ffe6e6;
+            text-align: center;
+            overflow: hidden;
+            transition: background-color 0.5s;
+        }
+
+        h1 {
+            color: #d6336c;
+            margin-bottom: 20px;
+        }
+
+        img {
+            width: 300px;
+            max-width: 80%;
+            margin-bottom: 30px;
+            border-radius: 15px;
+            transition: transform 0.5s;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 20px;
+        }
+
+        button {
+            padding: 10px 30px;
+            font-size: 18px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+            position: relative;
+        }
+
+        button:hover {
+            transform: scale(1.1);
+        }
+
+        .yes {
+            background-color: #ff4d6d;
+            color: white;
+        }
+
+        .no {
+            background-color: #cccccc;
+            color: black;
+        }
+
+        /* Efekty konfetti (TAK) */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #ff4d6d;
+            animation: fall 3s linear infinite;
+            border-radius: 50%;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-50px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* Baner TAK */
+        .banner {
+            position: absolute;
+            top: 50px;
+            font-size: 48px;
+            color: #ff1a75;
+            animation: bounce 1s ease infinite alternate;
+        }
+
+        /* Animacja baneru i zoom */
+        @keyframes bounce {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-20px); }
+        }
+
+        @keyframes zoom {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .zoom-effect {
+            animation: zoom 0.5s ease;
+        }
+
+        /* Efekty łez (NIE) */
+        .tear {
+            position: absolute;
+            width: 8px;
+            height: 16px;
+            background-color: #00f;
+            border-radius: 50%;
+            animation: fallTear 2s linear forwards;
+        }
+
+        @keyframes fallTear {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* Baner smutku */
+        .sad-banner {
+            position: absolute;
+            top: 50px;
+            font-size: 48px;
+            color: #003366;
+            animation: bounce 1s ease infinite alternate;
+        }
+    </style>
+</head>
+<body>
+    <h1>Czy zostaniesz moją walentynką?</h1>
+    <img id="heartImage" src="think.jpg" alt="Serce Walentynki">
+    <div class="buttons">
+        <button class="yes" id="yesButton">TAK</button>
+        <button class="no" id="noButton">NIE</button>
+    </div>
+
+    <!-- Dźwięk fanfar -->
+    <audio id="fanfareSound" src="fanfare.mp3"></audio>
+
+    <script>
+        const yesButton = document.getElementById('yesButton');
+        const noButton = document.getElementById('noButton');
+        const heartImage = document.getElementById('heartImage');
+        const fanfare = document.getElementById('fanfareSound');
+        const body = document.body;
+
+        // Funkcja usuwająca wszystkie elementy klasy podanej jako argument
+        function removeElementsByClass(className) {
+            const elements = document.querySelectorAll(`.${className}`);
+            elements.forEach(el => el.remove());
+        }
+
+        // Kliknięcie TAK
+        yesButton.addEventListener('click', () => {
+            // Usuń efekty NIE
+            removeElementsByClass('tear');
+            removeElementsByClass('sad-banner');
+            body.style.backgroundColor = '#ffe6e6';
+
+            // Zmiana obrazka
+            heartImage.src = 'happy.jpg';
+            heartImage.classList.add('zoom-effect');
+
+            // Baner Hurra!
+            const banner = document.createElement('div');
+            banner.classList.add('banner', 'forYes');
+            banner.textContent = 'Hurra!';
+            body.appendChild(banner);
+
+            // Konfetti
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti', 'forYes');
+                confetti.style.left = Math.random() * window.innerWidth + 'px';
+                confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                confetti.style.animationDuration = (2 + Math.random() * 3) + 's';
+                confetti.style.width = confetti.style.height = (5 + Math.random() * 10) + 'px';
+                body.appendChild(confetti);
+            }
+
+            // Dźwięk fanfar
+            fanfare.play();
+
+            // Usuń efekt zoom po animacji
+            heartImage.addEventListener('animationend', () => {
+                heartImage.classList.remove('zoom-effect');
+            }, { once: true });
+        });
+
+        // Kliknięcie NIE
+        noButton.addEventListener('click', () => {
+            // Usuń efekty TAK
+            removeElementsByClass('forYes');
+
+            // Zmiana obrazka na smutny
+            heartImage.src = 'sad.jpg';
+            heartImage.classList.add('zoom-effect');
+
+            // Przygaszone tło
+            body.style.backgroundColor = '#cce0ff';
+
+            // Baner smutku
+            const sadBanner = document.createElement('div');
+            sadBanner.classList.add('sad-banner');
+            sadBanner.textContent = 'Ach… 😢';
+            body.appendChild(sadBanner);
+
+            // Spadające łzy
+            for (let i = 0; i < 30; i++) {
+                const tear = document.createElement('div');
+                tear.classList.add('tear');
+                tear.style.left = Math.random() * window.innerWidth + 'px';
+                tear.style.animationDuration = (1 + Math.random() * 2) + 's';
+                body.appendChild(tear);
+            }
+
+            // Usuń efekt zoom po animacji
+            heartImage.addEventListener('animationend', () => {
+                heartImage.classList.remove('zoom-effect');
+            }, { once: true });
+        });
+    </script>
+</body>
+</html>
